@@ -1,6 +1,6 @@
-environment: dev
+environment: development
 rds_master_username: alvinator
-rds_master_password: pass0wrd
+rds_master_password: passw0rd
 rds_db_name: development
 webservers_instance_type: t3.nano
 apiservers_instance_type: t3.nano
