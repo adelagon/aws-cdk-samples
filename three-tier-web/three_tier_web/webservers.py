@@ -21,6 +21,16 @@ class WebServers(core.Construct):
       cpu_type=ec2.AmazonLinuxCpuType.X86_64
     )
 
+    # Security Group
+    security_group = ec2.SecurityGroup(
+      self, "WebServerSG",
+      vpc=vpc
+    )
+    security_group.add_ingress_rule(
+      ec2.Peer.any_ipv4(),
+      ec2.Port.tcp(80),
+    )
+
     # Fetch the bootstrap script
     data = open("./three_tier_web/userdata.sh", "rb").read()
     user_data = ec2.UserData.for_linux()
@@ -30,14 +40,16 @@ class WebServers(core.Construct):
     self._instances = []
     i = 0
     for subnet in vpc.select_subnets(subnet_type=ec2.SubnetType.PUBLIC).subnets:
+      subnet_selection = ec2.SubnetSelection(subnets=[subnet])
       self._instances.append(
         ec2.Instance(
         self, id+str(i),
         instance_type=ec2.InstanceType(instance_type),
         vpc=vpc,
-        vpc_subnets=subnet,
+        vpc_subnets=subnet_selection,
         machine_image=amzn_linux,
-        user_data=user_data
+        user_data=user_data,
+        security_group=security_group
         )
       )
       i += 1

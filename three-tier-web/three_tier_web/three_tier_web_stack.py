@@ -9,7 +9,7 @@ from load_balancer import LoadBalancer
 
 class ThreeTierWebStack(core.Stack):
 
-    def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
+    def __init__(self, scope: core.Construct, id: str, config: dict, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         topology = NetworkTopology(
@@ -19,21 +19,21 @@ class ThreeTierWebStack(core.Stack):
         webservers = WebServers(
           self, 'WebServers',
           vpc=topology.vpc,
-          instance_type="t3.nano"
+          instance_type=config["webservers_instance_type"]
         )
 
         apiservers = APIServers(
           self, 'APIServers',
           vpc=topology.vpc,
-          instance_type="t3.nano"
+          instance_type=config["apiservers_instance_type"]
         )
 
         database = Database(
           self, 'Database',
           vpc=topology.vpc,
-          master_username="alvinator",
-          master_password="passw0rd",
-          database_name="production"
+          master_username=config["rds_master_username"],
+          master_password=config["rds_master_password"],
+          database_name=config["rds_db_name"]
         )
 
         load_balancer = LoadBalancer(

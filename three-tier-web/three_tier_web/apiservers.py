@@ -25,12 +25,13 @@ class APIServers(core.Construct):
     self._instances = []
     i = 0
     for subnet in vpc.select_subnets(subnet_type=ec2.SubnetType.PRIVATE).subnets:
+      subnet_selection = ec2.SubnetSelection(subnets=[subnet])
       self._instances.append(
         ec2.Instance(
         self, id+str(i),
         instance_type=ec2.InstanceType(instance_type),
         vpc=vpc,
-        vpc_subnets=subnet,
+        vpc_subnets=subnet_selection,
         machine_image=amzn_linux
         )
       )
