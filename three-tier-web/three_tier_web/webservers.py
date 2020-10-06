@@ -9,7 +9,11 @@ class WebServers(core.Construct):
   def instances(self):
     return self._instances
 
-  def __init__(self, scope: core.Construct, id: str, instance_type: str, vpc: ec2.IVpc, **kwargs):
+  @property
+  def security_group(self):
+    return self._security_group
+
+  def __init__(self, scope: core.Construct, id: str, instance_type: str, vpc: ec2.IVpc, security_group: ec2.ISecurityGroup, **kwargs):
     super().__init__(scope, id, **kwargs)
 
     # AMI
@@ -19,16 +23,6 @@ class WebServers(core.Construct):
       virtualization=ec2.AmazonLinuxVirt.HVM,
       storage=ec2.AmazonLinuxStorage.GENERAL_PURPOSE,
       cpu_type=ec2.AmazonLinuxCpuType.X86_64
-    )
-
-    # Security Group
-    security_group = ec2.SecurityGroup(
-      self, "WebServerSG",
-      vpc=vpc
-    )
-    security_group.add_ingress_rule(
-      ec2.Peer.any_ipv4(),
-      ec2.Port.tcp(80),
     )
 
     # Fetch the bootstrap script

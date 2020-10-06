@@ -77,6 +77,7 @@ Pygments==2.6.1
 PyInquirer==1.0.3
 pyrsistent==0.16.0
 python-dateutil==2.8.1
+PyYAML==5.3.1
 pyzmq==19.0.0
 qtconsole==4.7.3
 QtPy==1.9.0

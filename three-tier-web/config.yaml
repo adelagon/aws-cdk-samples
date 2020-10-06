@@ -1,4 +1,4 @@
-environment: development
+environment: dev
 rds_master_username: alvinator
 rds_master_password: passw0rd
 rds_db_name: development

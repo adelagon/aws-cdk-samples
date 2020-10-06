@@ -10,7 +10,7 @@ class LoadBalancer(core.Construct):
   def alb(self):
     return self._alb
     
-  def __init__(self, scope: core.Construct, id: str, vpc: ec2.IVpc, instances: list, **kwargs):
+  def __init__(self, scope: core.Construct, id: str, vpc: ec2.IVpc, security_group: ec2.ISecurityGroup, instances: list, **kwargs):
     super().__init__(scope, id, **kwargs)
 
     self._tg = elbv2.ApplicationTargetGroup(
@@ -30,7 +30,8 @@ class LoadBalancer(core.Construct):
     self._alb = elbv2.ApplicationLoadBalancer(
       self, "LB",
       vpc=vpc,
-      internet_facing=True
+      internet_facing=True,
+      security_group=security_group
     )
 
     listener = self._alb.add_listener("Listener", port=80, default_target_groups=[self._tg])

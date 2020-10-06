@@ -9,7 +9,7 @@ class APIServers(core.Construct):
   def instances(self):
     return self._instances
 
-  def __init__(self, scope: core.Construct, id: str, instance_type: str, vpc: ec2.IVpc, **kwargs):
+  def __init__(self, scope: core.Construct, id: str, instance_type: str, vpc: ec2.IVpc, security_group: ec2.ISecurityGroup, **kwargs):
     super().__init__(scope, id, **kwargs)
 
     # AMI
@@ -32,6 +32,7 @@ class APIServers(core.Construct):
         instance_type=ec2.InstanceType(instance_type),
         vpc=vpc,
         vpc_subnets=subnet_selection,
+        security_group=security_group,
         machine_image=amzn_linux
         )
       )

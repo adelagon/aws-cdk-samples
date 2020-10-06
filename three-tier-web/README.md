@@ -1,7 +1,16 @@
 
-# Welcome to your CDK Python project!
+# Three Tier Web Application written in CDK
 
-This is a blank project for Python development with CDK.
+This is an sample implementation of a traditional 3 tier web app python-cdk:
+
+![Architecture](archi.png)
+
+Some interesting tidbits on this example:
+- Use of constructs for separation of concerns
+- Use of an external yaml config to externalize configurations and separation environments
+- Autoscaling is not enabled, instances are provisioned directly to Target Groups
+
+# Installation Procedures:
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 

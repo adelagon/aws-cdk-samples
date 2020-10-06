@@ -9,7 +9,7 @@ class Database(core.Construct):
   def database(self):
     return self._database
 
-  def __init__(self, app: core.App, id: str, master_username: str, master_password: str, database_name: str, vpc: ec2.IVpc, **kwargs):
+  def __init__(self, app: core.App, id: str, master_username: str, master_password: str, database_name: str, vpc: ec2.IVpc, security_group: ec2.ISecurityGroup, **kwargs):
     super().__init__(app, id, **kwargs)
 
     # RDS - MySQL. It defaults to VPC's Private Subnets unless specified
@@ -23,6 +23,7 @@ class Database(core.Construct):
       ),
       vpc=vpc,
       port=3306,
+      security_groups=[security_group],
       instance_type=ec2.InstanceType.of(
         ec2.InstanceClass.BURSTABLE3,
         ec2.InstanceSize.MICRO
