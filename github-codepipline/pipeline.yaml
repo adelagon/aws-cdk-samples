@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Example CodePipeline + CodeBuild setup using GitHub using v1 connector
+
+Parameters:
+  Env:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - sbx
+      - dev
+      - stg
+      - prd
+
+  Service:
+    Description: An service name that is used in resource names and tags
+    Type: String
+    Default: app
+
+  GitHubSecret:
+    Type: String
+    Description: OAuth token to allow connection to the GitHub repo where the application code is stored
+    NoEcho: true
+
+  GitHubUser:
+    Type: String
+    Description: The name of the GitHub repo owner
+
+  GitHubRepo:
+    Type: String
+    Description: Name of the GitHub repo to pull code from
+
+  GitHubBranch:
+    Type: String
+    Description: The name branch to run the pipeline on
+    Default: main
+
+  BuildSpecFile:
+    Type: String
+    Description: The name of the buildspec used to create the initial artifacts
+    Default: buildspec.yaml
+
+  ArtifactsBucket:
+    Type: String
+    Description: The name of the bucket to store the CodePipeline Artifacts in
+
+  CodeBuildImage:
+    Type: String
+    Description: The AWS CodeBuild image to run steps on
+    Default: aws/codebuild/standard:5.0
+
+  CodePipelineServiceRoleArn:
+    Type: String
+    Description: The ARN for the CloudFormationServiceRole
+
+  CodeBuildServiceRoleArn:
+    Type: String
+    Description: The ARN for the CodeBuildServiceRole
+
+
+Resources:
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub "${Env}-${Service}-pipeline"
+      RoleArn: !Ref CodePipelineServiceRoleArn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactsBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: App
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubUser
+                Repo: !Ref GitHubRepo
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubSecret
+              OutputArtifacts:
+                - Name: App
+
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuild
+              InputArtifacts:
+                - Name: App
+              OutputArtifacts:
+                - Name: BuildOutput
+
+  CodeBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub "${Env}-${Service}-build"
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: !Ref BuildSpecFile
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: !Ref CodeBuildImage
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+      ServiceRole: !Ref CodeBuildServiceRoleArn
+
+Outputs:
+  PipelineUrl:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${CodePipeline}
+

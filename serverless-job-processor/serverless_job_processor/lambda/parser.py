@@ -36,11 +36,11 @@ def handler(event, context):
         # Upload the processed csv into S3 into 'processed' folder
         # delete from 'input' folder
         csvfile.close()
-        s3.upload_file(
+        bucket.upload_file(
             file_name,
             "processed/{}".format(file_name)
         )
-        s3.delete_objects(
+        bucket.delete_objects(
             Delete={
                 'Objects': [
                     {

@@ -8,6 +8,7 @@ def handler(event, context):
     url = os.path.join(body['url'], body['id'])
     
     print ("Sending API call to: {}".format(url))
+    print ("HELLO SMIC!")
     req = urllib.request.Request(url)
     try:
         res = urllib.request.urlopen(url)
